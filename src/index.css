@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    scroll-behavior: smooth;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+
+.app-shadow{ 
+    -webkit-box-shadow: 0 1px 10px 10px rgba(45, 45, 46, 0.226); 
+    box-shadow: 0 1px 10px 10px rgba(45, 45, 46, 0.226); 
+}
+
+/* Thin Scrollbar */
+.thin-scrollbar {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #c0c0c0 transparent; /* Firefox */
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+    width: 2px; /* Chrome, Safari, and Edge */
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Track background */
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0; /* Thumb color */
+    border-radius: 10px; /* Optional for rounded corners */
+    border: 2px solid transparent; /* Space around the thumb */
+}
+
+.active-link{
+    border-bottom: 4px solid black;
+}
