@@ -5,6 +5,8 @@ import Contact from '../pages/Contact'
 import Faq from '../pages/FAQ' 
 import Venue from '../pages/Venue'
 import NotFound from '../pages/NotFound'
+import Login from '../pages/Login'
+import Register from '../pages/Register'
 const Content = ( ) => {
   return (
     <div
@@ -18,6 +20,8 @@ const Content = ( ) => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/venues' element={<Venue />} />
         <Route path='/faq' element={<Faq />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>

@@ -1,13 +1,18 @@
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const NavBar = ({
   openState,
+  isMobileMenuOpen,
   handleChangeOpenState,
   handleChangeOpenSearch,
+  handleOpenMobileMenu,
+  handleOpenUserMenu,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const { isLoggedIn, user } = useAuth()
 
   // Toggle dark mode class on root element
   useEffect(() => {
@@ -30,13 +35,17 @@ const NavBar = ({
         className='w-[80px] h-full flex items-center justify-center bg-black text-white'
         id='logo'
       >
-        <h1 className='text-3xl font-black'>H</h1>
+        <Link to='/' className='text-3xl font-black'>
+          H
+        </Link>
       </div>
       <div
         id='logoName'
         className='h-full flex items-center flex-1 lg:flex-none px-8 font-black py-10 '
       >
-        <span className='dark:text-white'>Holidaze</span>
+        <Link to='/' className='dark:text-white'>
+          Holidaze
+        </Link>
       </div>
       <div
         id='appLinks'
@@ -97,11 +106,29 @@ const NavBar = ({
       </div>
       <div id='moreActions' className='h-full px-4'>
         <ul className='flex items-center gap-4 h-full'>
-          <li className='lg:hidden'>
-            <a href=''>
-              <i className='fa fa-bars'></i>
-            </a>
-          </li>
+          {!isLoggedIn&&(<li className='hidden lg:flex'>
+            <Link
+              to='/login'
+              className='flex gap-4 p-4 bg-black text-white items-center uppercase'
+            >
+              <i className='fa-sharp fa-light fa-right-to-bracket'></i>
+              <small>Login</small>
+            </Link>
+          </li>)}
+
+          {!isMobileMenuOpen ? (
+            <li className='lg:hidden'>
+              <a href='#' onClick={() => handleOpenMobileMenu(true)}>
+                <i className='fa fa-bars'></i>
+              </a>
+            </li>
+          ) : (
+            <li className='lg:hidden'>
+              <a href='#' onClick={() => handleOpenMobileMenu(false)}>
+                <i className='fa-sharp fa-solid fa-xmark'></i>
+              </a>
+            </li>
+          )}
           <li>
             <i
               className='fa-regular fa-circle-half-stroke'
@@ -126,6 +153,16 @@ const NavBar = ({
               </a>
             </li>
           )}
+          {isLoggedIn && (
+            <li>
+              <img
+                onClick={handleOpenUserMenu}
+                src={user?.avatar?.url || 'https://via.placeholder.com/32'}
+                alt={user?.avatar?.alt}
+                className='rounded-full w-[32px] h-[32px]'
+              />
+            </li>
+          )}
         </ul>
       </div>
     </div>
@@ -134,8 +171,11 @@ const NavBar = ({
 
 NavBar.propTypes = {
   openState: PropTypes.bool.isRequired,
+  isMobileMenuOpen: PropTypes.bool.isRequired,
   handleChangeOpenState: PropTypes.func.isRequired,
   handleChangeOpenSearch: PropTypes.func.isRequired,
+  handleOpenMobileMenu: PropTypes.func.isRequired,
+  handleOpenUserMenu: PropTypes.func.isRequired,
 }
  
 export default NavBar;

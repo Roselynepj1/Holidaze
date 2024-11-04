@@ -9,7 +9,7 @@ const RightBar = ({ openState }) => {
       animate={{ x: openState ? '0%' : '100%', opacity: openState ? 1 : 0 }} // Slide in if open, slide out if closed
       transition={{ type: 'spring', stiffness: 300, damping: 30 }} // Customize animation behavior
       className={`absolute right-0 h-screen thin-scrollbar dark:text-white dark:bg-slate-950 ${
-        !openState ? 'w-0' : 'w-full lg:w-[350px]'
+        !openState ? 'w-0' : 'w-full md:w-[350px]'
       } bg-white p-8 overflow-y-scroll`}
     >
       <div className='flex flex-col gap-4'>

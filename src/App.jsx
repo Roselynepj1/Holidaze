@@ -5,11 +5,14 @@ import RightBar from './layouts/RightBar'
 import SideBar from './layouts/SideBar'
 import React, { useState, useEffect } from 'react'
 import Search from './layouts/Search'
+import MobileMenu from './layouts/MobileMenu'
+import UserMenu from './layouts/UserMenu'
 
 function App() {
   const [openState, setOpenState] = useState(false)
-  const [openSearch, setOpenSearch] = useState(false)
-  const [pageTitle, setPageTitle] = useState('Home');
+  const [openSearch, setOpenSearch] = useState(false) 
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const [openUserMenu, setOpenUserMenu] = useState(false);
   const handleChangeOpenSearch = () => {
     setOpenSearch(!openSearch)
   }
@@ -17,8 +20,12 @@ function App() {
     setOpenState(state)
   }
 
-  const handleChangePageTitle = (title) => {  
-    setPageTitle(title)
+  const handleOpenMobileMenu = () => {
+    setOpenMobileMenu(!openMobileMenu);
+  } 
+ 
+  const handleOpenUserMenu = () => {
+    setOpenUserMenu(!openUserMenu);
   }
 
   
@@ -36,13 +43,18 @@ function App() {
         >
           <NavBar
             openState={openState}
+            isMobileMenuOpen={openMobileMenu}
             handleChangeOpenState={handleChangeOpenState}
             handleChangeOpenSearch={handleChangeOpenSearch}
+            handleOpenMobileMenu={handleOpenMobileMenu}
+            handleOpenUserMenu={handleOpenUserMenu}
           />
           <div className='flex h-full relative bg-white' id='content'>
             {openSearch && <Search isOpen={openSearch} />}
-            <SideBar pageTitle={pageTitle}/>
-            <Content  />
+            {openMobileMenu && <MobileMenu isOpen={openMobileMenu} />}
+            <SideBar />
+            <Content />
+            <UserMenu openState={openUserMenu} handleOpenUserMenu={handleOpenUserMenu} />
             <RightBar openState={openState} />
           </div>
         </div>
