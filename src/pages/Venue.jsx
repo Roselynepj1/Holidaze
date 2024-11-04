@@ -26,8 +26,7 @@ const Venue = () => {
 
   }, [])
   return (
-    <motion.div className='p-6 bg-white/50 dark:bg-slate-950 h-full mb-16'>
-      <h1 className='font-black text-3xl'>Available Venues</h1>
+    <motion.div className='p-6 bg-white/50 dark:bg-slate-950 min-h-full pb-32'> 
       <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
         
         {venues.map((venue) => (
