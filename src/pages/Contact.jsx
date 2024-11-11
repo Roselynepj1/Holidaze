@@ -32,6 +32,8 @@ const Contact = () => {
     setIsLoading(true)
     setTimeout(() => {
       setMessage((prev) => ({ ...prev, success: 'Message sent successfully' }))
+      //clear the form
+      setFormData({ name: '', email: '', message: '' })
       setIsLoading(false)
     }, 1000)
   }
