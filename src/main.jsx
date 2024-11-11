@@ -6,16 +6,20 @@ import { BrowserRouter } from 'react-router-dom'
 import { PageTitleProvider } from './context/PageTitleContext'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ProfileProvider } from './context/ProfileContext.jsx'
+import { DarkModeProvider } from './context/DarkModeContext.jsx'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <PageTitleProvider>
-        <AuthProvider>
-          <ProfileProvider>
-            <App />
-          </ProfileProvider>
-        </AuthProvider>
-      </PageTitleProvider>
+      <DarkModeProvider>
+        <PageTitleProvider>
+          <AuthProvider>
+            <ProfileProvider>
+              <App />
+            </ProfileProvider>
+          </AuthProvider>
+        </PageTitleProvider>
+      </DarkModeProvider>
     </BrowserRouter>
   </StrictMode>
 )

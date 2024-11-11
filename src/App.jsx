@@ -3,16 +3,16 @@ import NavBar from './layouts/NavBar'
 import Content from './layouts/Content'
 import RightBar from './layouts/RightBar'
 import SideBar from './layouts/SideBar'
-import React, { useState, useEffect } from 'react'
+import  { useState } from 'react'
 import Search from './layouts/Search'
 import MobileMenu from './layouts/MobileMenu'
 import UserMenu from './layouts/UserMenu'
 
 function App() {
   const [openState, setOpenState] = useState(false)
-  const [openSearch, setOpenSearch] = useState(false) 
-  const [openMobileMenu, setOpenMobileMenu] = useState(false);
-  const [openUserMenu, setOpenUserMenu] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false)
+  const [openMobileMenu, setOpenMobileMenu] = useState(false)
+  const [openUserMenu, setOpenUserMenu] = useState(false)
   const handleChangeOpenSearch = () => {
     setOpenSearch(!openSearch)
   }
@@ -20,15 +20,14 @@ function App() {
     setOpenState(state)
   }
 
-  const handleOpenMobileMenu = () => {
-    setOpenMobileMenu(!openMobileMenu);
-  } 
- 
-  const handleOpenUserMenu = () => {
-    setOpenUserMenu(!openUserMenu);
+  const handleOpenMobileMenu = (state) => {
+    setOpenMobileMenu(state)
   }
 
-  
+  const handleOpenUserMenu = () => {
+    setOpenUserMenu(!openUserMenu)
+  }
+
   return (
     <div className='transition-fade'>
       <motion.div
@@ -51,10 +50,18 @@ function App() {
           />
           <div className='flex h-full relative bg-white' id='content'>
             {openSearch && <Search isOpen={openSearch} />}
-            {openMobileMenu && <MobileMenu isOpen={openMobileMenu} />}
+            {openMobileMenu && (
+              <MobileMenu
+                isOpen={openMobileMenu}
+                handleOpenMobileMenu={handleOpenMobileMenu}
+              />
+            )}
             <SideBar />
             <Content />
-            <UserMenu openState={openUserMenu} handleOpenUserMenu={handleOpenUserMenu} />
+            <UserMenu
+              openState={openUserMenu}
+              handleOpenUserMenu={handleOpenUserMenu}
+            />
             <RightBar openState={openState} />
           </div>
         </div>

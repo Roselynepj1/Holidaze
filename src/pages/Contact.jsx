@@ -1,12 +1,40 @@
 import { usePageTitleContext } from '../context/PageTitleContext'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import coverImage from '/cover2.jpg'
 import bannerImage from '/banner4.jpg'
+import Message from './../components/Message'
+import Spinner from './../components/Spinner'
 
 const Contact = () => {
   const { changePageTitle } = usePageTitleContext()
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState({ error: null, success: null })
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  })
+
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    })
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    ///clear any errors
+    setMessage(() => ({ success: null, error: null }))
+    ///send form
+    setIsLoading(true)
+    setTimeout(() => {
+      setMessage((prev) => ({ ...prev, success: 'Message sent successfully' }))
+      setIsLoading(false)
+    }, 1000)
+  }
   useEffect(() => {
     changePageTitle('Contact')
   }, [])
@@ -77,7 +105,10 @@ const Contact = () => {
           </div>
           <div className='flex flex-col gap-4 mb-10'>
             <h1 className='uppercase font-black'>Get in touch</h1>
-            <form className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <form
+              className='grid grid-cols-1 md:grid-cols-2 gap-4'
+              onSubmit={handleSubmit}
+            >
               <div className='w-full'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
@@ -85,7 +116,10 @@ const Contact = () => {
                   </div>
                   <input
                     type='text'
+                    required
                     id='email-address-icon'
+                    name='name'
+                    onChange={handleChange}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Name'
                   />
@@ -97,7 +131,10 @@ const Contact = () => {
                     <i className='fa-sharp fa-light fa-envelope'></i>
                   </div>
                   <input
-                    type='text'
+                    type='email'
+                    required
+                    name='email'
+                    onChange={handleChange}
                     id='email-address-icon'
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Email'
@@ -107,19 +144,38 @@ const Contact = () => {
               <div className='col-span-1 md:col-span-2'>
                 <textarea
                   id='message'
+                  required
+                  name='message'
+                  onChange={handleChange}
                   rows='4'
                   className='block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   placeholder='Message'
                 ></textarea>
               </div>
-              <div className='col-span-1 md:col-span-2  gap-4 flex flex-col-reverse lg:flex-between'>
+              <div className='col-span-1 md:col-span-2  gap-4 flex flex-col-reverse lg:flex-row lg:justify-between items-center'>
                 <p className='w-full lg:w-1/2'>
                   We promise not to disclose your personal information to third
                   parties.
                 </p>
-                <button className='flex gap-2 p-4 bg-black text-white items-center uppercase lg:ml-auto hover:bg-black/75'>
-                  <span className='text-xs'>Send Message</span>
+                <button
+                  disabled={isLoading ? true : ''}
+                  className='flex gap-2 p-4 bg-black text-white items-center uppercase hover:bg-black/75'
+                >
+                  {isLoading && <Spinner />}
+                  <span className='text-xs'>
+                    {isLoading ? 'Sending...' : 'Send Message'}
+                  </span>
                 </button>
+              </div>
+
+              <div className='col-span-2'>
+                {message.success && <Message message={message.success} />}
+                {message.error && (
+                  <Message
+                    message={message.error}
+                    backgroundColor='bg-red-500'
+                  />
+                )}
               </div>
             </form>
 
@@ -170,7 +226,10 @@ const Contact = () => {
                   crafting your unforgettable Holidaze experience.
                 </p>
               </div>
-              <Link to='/about' className='bg-black hover:bg-black/40 text-white font-semibold py-2 px-6'>
+              <Link
+                to='/about'
+                className='bg-black hover:bg-black/40 text-white font-semibold py-2 px-6'
+              >
                 About Us
               </Link>
             </div>

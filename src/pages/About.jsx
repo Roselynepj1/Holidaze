@@ -73,9 +73,9 @@ const About = () => {
             </div>
 
             <div className=' p-6'>
-              <blockquote className='relative bg-white p-8 rounded-lg shadow-lg backdrop-blur-lg'>
+              <blockquote className='relative bg-white dark:bg-slate-800  p-8 rounded-lg shadow-lg backdrop-blur-lg'>
                 <div className='relative z-10'>
-                  <div className='text-gray-800 text-lg font-serif italic leading-relaxed'>
+                  <div className='text-gray-800 dark:text-white text-lg font-serif italic leading-relaxed'>
                     Embrace the spirit of Holidaze, where every getaway is a
                     journey toward joy, connection, and unforgettable memories.
                     Let the adventure begin!
@@ -98,7 +98,7 @@ const About = () => {
                 <div className='grid grid-cols-2 md:grid-cols-4 gap-8 text-center'>
                   {stats.map((stat, index) => (
                     <div key={index} className='p-4'>
-                      <div className='text-4xl font-bold text-gray-800 mb-2'>
+                      <div className='text-4xl font-bold text-gray-800 dark:text-zinc-300 mb-2'>
                         {stat.value}
                       </div>
                       <div className='text-xs tracking-wider text-gray-600 font-medium'>
@@ -204,7 +204,7 @@ const TestimonialSlider = ()=> {
               <div key={index} className='w-full flex-shrink-0 px-4'>
                 <div className='grid md:grid-cols-1 gap-8'>
                   {/* Left testimonial */}
-                  <div className='bg-white p-6 rounded-lg shadow-sm'>
+                  <div className='bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm'>
                     <div className='flex items-center gap-4 mb-4'>
                       <img
                         src={testimonial.image}
@@ -212,15 +212,15 @@ const TestimonialSlider = ()=> {
                         className='w-16 h-16 rounded-full'
                       />
                       <div>
-                        <h3 className='font-semibold text-lg'>
+                        <h3 className='font-semibold text-lg dark:text-zinc-300'>
                           {testimonial.name}
                         </h3>
-                        <p className='text-gray-600 text-sm'>
+                        <p className='text-gray-600 text-sm dark:text-zinc-300'>
                           {testimonial.role}
                         </p>
                       </div>
                     </div>
-                    <p className='text-gray-700 mb-4 leading-relaxed'>
+                    <p className='text-gray-700 mb-4 leading-relaxed dark:text-zinc-300'>
                       {testimonial.text}
                     </p>
                     <div className='flex gap-1'>
@@ -251,13 +251,13 @@ const TestimonialSlider = ()=> {
         {/* Navigation arrows */}
         <button
           onClick={handlePrev}
-          className='absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full hover:bg-gray-50'
+          className='absolute left-0 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg p-2 rounded-full hover:bg-gray-50'
         >
           ←
         </button>
         <button
           onClick={handleNext}
-          className='absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full hover:bg-gray-50'
+          className='absolute right-0 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg p-2 rounded-full hover:bg-gray-50'
         >
           →
         </button>
