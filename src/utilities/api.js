@@ -58,7 +58,7 @@ export const register = async (user) => {
   const options = {
     method: 'POST',
     headers: {
-      'Content-Type':'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       ...user,
@@ -83,7 +83,7 @@ export const getProfile = async (name) => {
     headers: headers(), // Use headers function to include authorization and other headers
   }
 
-  const result = await apiCall(url, options)   
+  const result = await apiCall(url, options)
   if (result.error) {
     console.error('Failed to fetch profile:', result.error)
     return { error: result.error }
@@ -93,8 +93,8 @@ export const getProfile = async (name) => {
 }
 
 // Function to fetch venues with pagination options
-export const getVenues = async (limit = 12, sortOrder = 'desc') => {
-  const url = `${appApiBaseUrl}/venues?limit=${limit}&sortOrder=${sortOrder}`
+export const getVenues = async (page = 1, limit = 12, sortOrder = 'desc') => {
+  const url = `${appApiBaseUrl}/venues?limit=${limit}&sortOrder=${sortOrder}&page=${page}`
   const options = {
     method: 'GET',
     headers: headers(), // Use headers function to include authorization and other headers
@@ -107,4 +107,200 @@ export const getVenues = async (limit = 12, sortOrder = 'desc') => {
   }
 
   return result // Return the venues data
+}
+
+export const searchVenues = async (
+  query,
+  page = 1,
+  limit = 12,
+  sortOrder = 'desc'
+) => {
+  const url = `${appApiBaseUrl}/venues/search?limit=${limit}&sortOrder=${sortOrder}&page=${page}&q=${encodeURIComponent(
+    query
+  )}`
+  const options = {
+    method: 'GET',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to search venues:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the searched venue data
+}
+
+// Function to fetch a single venue by id
+export const getVenueById = async (id, _bookings = true) => {
+  const url = `${appApiBaseUrl}/venues/${id}?_bookings=${_bookings}`
+  const options = {
+    method: 'GET',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to fetch venue by id:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the venue data
+}
+
+export const createBooking = async (booking) => {
+  const url = `${appApiBaseUrl}/bookings`
+  const options = {
+    method: 'POST',
+    headers: headers(), // Use headers function to include authorization and other headers
+    body: JSON.stringify(booking),
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to create a venue booking:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the venue data
+}
+
+export const getBookingById = async (id) => {
+  const url = `${appApiBaseUrl}/bookings/${id}`
+  const options = {
+    method: 'GET',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to fetch venue by id:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the venue data
+}
+
+export const getUserBookings = async (username, _venue = true) => {
+  const url = `${appApiBaseUrl}/profiles/${username}/bookings?&_venue=${_venue}`
+  const options = {
+    method: 'GET',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to fetch user bookings:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the bookings data
+}
+
+export const updateBooking = async (id, data) => {
+  const url = `${appApiBaseUrl}/bookings/${id}`
+  const options = {
+    method: 'PUT',
+    headers: headers(), // Use headers function to include authorization and other headers
+    body: JSON.stringify(data),
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to update booking:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the updated booking data
+}
+
+export const deleteBooking = async (id) => {
+  const url = `${appApiBaseUrl}/bookings/${id}`
+  const options = {
+    method: 'DELETE',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  await apiCall(url, options)
+
+  return true // Return the delete response
+}
+
+export const updateProfile = async (username, data) => {
+  const url = `${appApiBaseUrl}/profiles/${username}`
+  const options = {
+    method: 'PUT',
+    headers: headers(), // Use headers function to include authorization and other headers
+    body: JSON.stringify(data),
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to update profile:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the updated profile data
+}
+
+export const getUserVenues = async (username, _venue = true) => {
+  const url = `${appApiBaseUrl}/profiles/${username}/venues?&_venue=${_venue}`
+  const options = {
+    method: 'GET',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to fetch user bookings:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the bookings data
+}
+
+export const createVenue = async (data) => {
+  const url = `${appApiBaseUrl}/venues`
+  const options = {
+    method: 'POST',
+    headers: headers(), // Use headers function to include authorization and other headers
+    body: JSON.stringify(data),
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to create venue:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the updated booking data
+}
+
+export const updateVenue = async (id, data) => {
+  const url = `${appApiBaseUrl}/venues/${id}`
+  const options = {
+    method: 'PUT',
+    headers: headers(), // Use headers function to include authorization and other headers
+    body: JSON.stringify(data),
+  }
+
+  const result = await apiCall(url, options)
+  if (result.error) {
+    console.error('Failed to update booking:', result.error)
+    return { error: result.error }
+  }
+
+  return result // Return the updated booking data
+}
+
+export const deleteVenue = async (id) => {
+  const url = `${appApiBaseUrl}/venues/${id}`
+  const options = {
+    method: 'DELETE',
+    headers: headers(), // Use headers function to include authorization and other headers
+  }
+
+  await apiCall(url, options)
+  return true
 }
