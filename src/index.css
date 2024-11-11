@@ -36,3 +36,43 @@
 .active-link{
     border-bottom: 4px solid black;
 }
+
+/* Dark mode for react-big-calendar */
+.dark .rbc-calendar {
+  background-color: transparent;
+  color: #e0e0e0;
+}
+.dark .rbc-header, .dark .rbc-toolbar-label {
+  background-color: transparent;
+  color: #ffffff;
+}
+.dark .rbc-day-bg, .dark .rbc-date-cell, .dark .rbc-time-content {
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.dark .rbc-event {
+  background-color: #3b3d49 !important;
+  text-align: center;
+  color: #ffffff;
+}
+.dark .rbc-today{ 
+  background-color: #3b3d49 !important;
+}
+
+.rbc-event {
+  background-color: black;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 0;
+}
+
+.rbc-calendar{
+  padding: 8px !important;
+  border-radius: 0;
+}
+
+.dark .rbc-toolbar button{
+  background-color: #2d2d2d !important;
+  color: white;
+}
