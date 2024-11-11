@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types'
-import { useState, useEffect } from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { NavLink, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useDarkMode } from '../context/DarkModeContext'
+import { useProfile } from '../context/ProfileContext'
 
 const NavBar = ({
   openState,
@@ -11,24 +12,15 @@ const NavBar = ({
   handleOpenMobileMenu,
   handleOpenUserMenu,
 }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const { isLoggedIn, user } = useAuth()
-
-  // Toggle dark mode class on root element
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [isDarkMode])
+  const { isLoggedIn } = useAuth()
+  const { profile } = useProfile()
+  const { toggleDarkMode } = useDarkMode()
 
   // Handler to toggle dark mode state
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode)
 
   return (
     <div
-      className='flex h-[80px] shadow-sm bg-white dark:bg-slate-950 relative z-20 dark:text-white'
+      className='flex h-[80px] shadow-sm bg-white dark:bg-slate-950 relative z-50 dark:text-white'
       id='navbar'
     >
       <div
@@ -106,15 +98,17 @@ const NavBar = ({
       </div>
       <div id='moreActions' className='h-full px-4'>
         <ul className='flex items-center gap-4 h-full'>
-          {!isLoggedIn&&(<li className='hidden lg:flex'>
-            <Link
-              to='/login'
-              className='flex gap-4 p-4 bg-black text-white items-center uppercase'
-            >
-              <i className='fa-sharp fa-light fa-right-to-bracket'></i>
-              <small>Login</small>
-            </Link>
-          </li>)}
+          {!isLoggedIn && (
+            <li className='hidden lg:flex'>
+              <Link
+                to='/login'
+                className='flex gap-4 p-4 bg-black text-white items-center uppercase'
+              >
+                <i className='fa-sharp fa-light fa-right-to-bracket'></i>
+                <small>Login</small>
+              </Link>
+            </li>
+          )}
 
           {!isMobileMenuOpen ? (
             <li className='lg:hidden'>
@@ -154,11 +148,11 @@ const NavBar = ({
             </li>
           )}
           {isLoggedIn && (
-            <li>
+            <li className='flex-none'>
               <img
                 onClick={handleOpenUserMenu}
-                src={user?.avatar?.url || 'https://via.placeholder.com/32'}
-                alt={user?.avatar?.alt}
+                src={profile?.avatar?.url}
+                alt={profile?.avatar?.alt}
                 className='rounded-full w-[32px] h-[32px]'
               />
             </li>
@@ -177,5 +171,5 @@ NavBar.propTypes = {
   handleOpenMobileMenu: PropTypes.func.isRequired,
   handleOpenUserMenu: PropTypes.func.isRequired,
 }
- 
-export default NavBar;
+
+export default NavBar

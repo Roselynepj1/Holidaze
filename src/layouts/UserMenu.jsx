@@ -6,8 +6,11 @@ import { useProfile } from '../context/ProfileContext'
 
 const UserMenu = ({ openState, handleOpenUserMenu }) => {
   const { logout } = useAuth()
-  const { profile, loading } = useProfile()
+  const { profile, loading } = useProfile() 
 
+  const handleRedirect = () => {
+    handleOpenUserMenu(false) 
+  }
   return (
     <motion.aside
       id='rightBar'
@@ -19,11 +22,11 @@ const UserMenu = ({ openState, handleOpenUserMenu }) => {
       } bg-white p-8 overflow-y-scroll`}
     >
       <div className='flex flex-col gap-4'>
-        <Link to='/' className='flex gap-2 items-center'>
+        <Link onClick={handleRedirect} to='/profile' className='flex gap-2 items-center'>
           <i className='fa-sharp fa-regular fa-user'></i>
           <span>My Profile</span>
         </Link>
-        <Link to='/' className='flex gap-2 items-center'>
+        <Link onClick={handleRedirect} to='/user/bookings' className='flex gap-2 items-center'>
           <i className='fa-sharp fa-regular fa-bookmark'></i>
           <span>
             My Bookings{' '}
@@ -31,19 +34,15 @@ const UserMenu = ({ openState, handleOpenUserMenu }) => {
           </span>
         </Link>
         {profile?.venueManager && (
-          <Link to='/' className='flex gap-2 items-center'>
+          <Link onClick={handleRedirect} to='/user/venues' className='flex gap-2 items-center'>
             <i className='fa-sharp fa-regular fa-hotel'></i>
             <span>
               My Venues{' '}
               {loading ? 'loading...' : `(${profile?._count?.venues})`}
             </span>
           </Link>
-        )}
-        <Link to='/' className='flex gap-2 items-center'>
-          <i className='fa-sharp fa-regular fa-key'></i>
-          <span>Change Password</span>
-        </Link>
-        <Link
+        )} 
+        <Link  
           to='/'
           className='flex gap-2 items-center'
           onClick={() => {
