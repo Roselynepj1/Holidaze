@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { getProfile } from '../utilities/api' 
+import { getProfile } from '../utilities/api'
 import { useAuth } from './AuthContext'
 import PropTypes from 'prop-types'
 
@@ -19,14 +19,14 @@ export const ProfileProvider = ({ children }) => {
   const [error, setError] = useState(null)
 
   // Function to fetch and store profile data
-  const fetchProfile = async () => { 
+  const fetchProfile = async () => {
     if (!isLoggedIn || !user) {
       setProfile(null)
       return
     }
 
     setLoading(true)
-    setError(null)  
+    setError(null)
     try {
       const profileData = await getProfile(user.name)
       setProfile(profileData?.data)
