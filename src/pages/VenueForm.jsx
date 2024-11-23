@@ -6,6 +6,47 @@ import bannerImage from '/venues-1.jpg'
 import Spinner from './../components/Spinner'
 import Message from './../components/Message'
 import { createVenue, getVenueById, updateVenue } from '../utilities/api'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+// Validation schema
+const schema = yup.object().shape({
+  name: yup.string().required('Venue name is required'),
+  description: yup.string().required('Description is required'),
+  price: yup
+    .number()
+    .typeError('Price must be a number')
+    .positive('Price must be positive')
+    .required('Price is required'),
+  maxGuests: yup
+    .number()
+    .typeError('Max guests must be a number')
+    .positive('Max guests must be positive')
+    .integer('Max guests must be a whole number')
+    .required('Maximum guests is required'),
+  media: yup.array().of(
+    yup.object().shape({
+      url: yup.string().url('Must be a valid URL'),
+      alt: yup.string(),
+    })
+  ),
+  meta: yup.object().shape({
+    wifi: yup.boolean(),
+    parking: yup.boolean(),
+    breakfast: yup.boolean(),
+    pets: yup.boolean(),
+  }),
+  location: yup.object().shape({
+    address: yup.string(),
+    city: yup.string(),
+    zip: yup.string(),
+    country: yup.string(),
+    continent: yup.string(),
+    lat: yup.number().typeError('Latitude must be a number'),
+    lng: yup.number().typeError('Longitude must be a number'),
+  }),
+})
 
 const VenueForm = () => {
   const { changePageTitle } = usePageTitleContext()
@@ -41,25 +82,64 @@ const VenueForm = () => {
       lng: 0,
     },
   })
+  
+
   const [formLoading, setFormLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const { venueId } = useParams()
 
+  // Inside your component, replace the useState with useForm
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+      description: '',
+      media: [{ url: '', alt: '' }],
+      price: 0,
+      maxGuests: 0,
+      rating: 0,
+      meta: {
+        wifi: true,
+        parking: true,
+        breakfast: true,
+        pets: true,
+      },
+      location: {
+        address: '',
+        city: '',
+        zip: '',
+        country: '',
+        continent: '',
+        lat: 0,
+        lng: 0,
+      },
+    },
+  })
+
+  const mediaFields = watch('media')
   useEffect(() => {
-    changePageTitle('Contact')
     const getVenueDetails = async (id) => {
       try {
         const { data } = await getVenueById(id)
-        setVenueFormData(data)
+        // Reset form with venue data
+        reset(data)
         setIsEditing(true)
       } catch (err) {
         console.log(err)
       }
     }
+
     if (venueId) {
       getVenueDetails(venueId)
     }
-  }, [])
+  }, [venueId, reset])
 
   const handleChange = (event, field) => {
     const { value } = event.target
@@ -121,10 +201,16 @@ const VenueForm = () => {
   }
 
   const addMediaItem = () => {
-    setVenueFormData((prevData) => ({
-      ...prevData,
-      media: [...prevData.media, { url: '', alt: '' }],
-    }))
+    const media = watch('media') || []
+    setValue('media', [...media, { url: '', alt: '' }])
+  }
+
+  const removeMediaItem = (index) => {
+    const media = watch('media')
+    setValue(
+      'media',
+      media.filter((_, i) => i !== index)
+    )
   }
 
   const handleMediaChange = (index, field, value) => {
@@ -135,20 +221,14 @@ const VenueForm = () => {
       media: newMedia,
     }))
   }
-
-  const removeMediaItem = (index) => {
-    setVenueFormData((prevData) => ({
-      ...prevData,
-      media: prevData.media.filter((_, i) => i !== index),
-    }))
-  }
+ 
 
   const isImageUrl = (url) => {
     const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i
     return urlPattern.test(url)
   }
 
-  const handleSubmit = (e) => {
+  const onSubmits = (e) => {
     e.preventDefault()
     setFormLoading(true)
 
@@ -229,6 +309,34 @@ const VenueForm = () => {
     }
   }
 
+  const onSubmit = async (data) => {
+    setFormLoading(true)
+    setMessage({ success: null, error: null })
+
+    try {
+      if (!isEditing) {
+        const response = await createVenue(data)
+        if (response.error) {
+          setMessage({ error: response.error[0].message })
+        } else {
+          setMessage({ success: 'Venue created successfully!' })
+          reset() // Reset form
+        }
+      } else {
+        const response = await updateVenue(venueId, data)
+        if (response.error) {
+          setMessage({ error: response.error[0].message })
+        } else {
+          setMessage({ success: 'Venue updated successfully!' })
+        }
+      }
+    } catch (e) {
+      setMessage({ error: e[0].message })
+    } finally {
+      setFormLoading(false)
+    }
+  }
+
   return (
     <>
       <motion.div className='flex flex-col lg:flex-row bg-white/50 dark:bg-slate-900 dark:text-white'>
@@ -239,7 +347,7 @@ const VenueForm = () => {
             </h1>
             <form
               className='grid grid-cols-1 md:grid-cols-2 gap-4'
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
             >
               <div className='col-span-1 md:col-span-2'>
                 <div className='relative'>
@@ -247,27 +355,25 @@ const VenueForm = () => {
                     <i className='fa-sharp fa-thin fa-buildings'></i>
                   </div>
                   <input
+                    {...register('name')}
                     type='text'
-                    required
-                    id='venueName'
-                    onChange={(event) => handleChange(event, 'name')}
-                    value={venueFormData.name}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Venue Name'
                   />
                 </div>
+                <small className='text-red-600'>{errors.name?.message}</small>
               </div>
 
               <div className='col-span-1 md:col-span-2'>
                 <textarea
-                  id='message'
-                  required
                   rows='4'
-                  onChange={(event) => handleChange(event, 'description')}
-                  value={venueFormData.description}
+                  {...register('description')}
                   className='block p-2.5 w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   placeholder='Venue Description...'
                 ></textarea>
+                <small className='text-red-600'>
+                  {errors.description?.message}
+                </small>
               </div>
 
               <div className='col-span-1'>
@@ -277,16 +383,12 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='number'
-                    id='venuePrice'
-                    required
-                    onChange={(event) => handleChange(event, 'price')}
-                    value={venueFormData.price}
-                    min='1'
-                    maxLength={160}
+                    {...register('price')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter price'
                   />
                 </div>
+                <small className='text-red-600'>{errors.price?.message}</small>
               </div>
 
               <div className='col-span-1'>
@@ -296,16 +398,14 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='number'
-                    id='maxGuests'
-                    required
-                    onChange={(event) => handleChange(event, 'maxGuests')}
-                    value={venueFormData.maxGuests}
-                    min='1'
-                    maxLength={160}
+                    {...register('maxGuests')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter maximum guests'
                   />
                 </div>
+                <small className='text-red-600'>
+                  {errors.maxGuests?.message}
+                </small>
               </div>
 
               <hr className='col-span-2' />
@@ -318,17 +418,18 @@ const VenueForm = () => {
                   </div>
                   <select
                     type='number'
-                    id='petsAllowed'
-                    min='1'
-                    onChange={(event) => handleChange(event, 'meta.pets')}
-                    value={venueFormData.meta.pets.toString()}
-                    maxLength={160}
+                    {...register('meta.pets')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   >
                     <option value='true'>Pets Allowed</option>
                     <option value='false'>Pets Not Allowed</option>
                   </select>
                 </div>
+                {errors.meta?.pets && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.meta.pets.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -337,18 +438,18 @@ const VenueForm = () => {
                     <i className='fa-sharp fa-thin fa-dog-leashed'></i>
                   </div>
                   <select
-                    type='number'
-                    id='wifiAvailable'
-                    onChange={(event) => handleChange(event, 'meta.wifi')}
-                    value={venueFormData.meta.wifi.toString()}
-                    min='1'
-                    maxLength={160}
+                    {...register('meta.wifi')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   >
                     <option value='true'>Wifi Available</option>
                     <option value='false'>No Wifi Available</option>
                   </select>
                 </div>
+                {errors.meta?.wifi && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.meta.wifi.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -358,17 +459,18 @@ const VenueForm = () => {
                   </div>
                   <select
                     type='number'
-                    id='breakfastAvailable'
-                    min='1'
-                    maxLength={160}
-                    onChange={(event) => handleChange(event, 'meta.breakfast')}
-                    value={venueFormData.meta.breakfast.toString()}
+                    {...register('meta.breakfast')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   >
                     <option value='true'>Breakfast Available</option>
                     <option value='false'>No Breakfast Available</option>
                   </select>
                 </div>
+                {errors.meta?.breakfast && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.meta.breakfast.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -377,18 +479,18 @@ const VenueForm = () => {
                     <i className='fa-sharp fa-thin fa-circle-parking'></i>
                   </div>
                   <select
-                    type='number'
-                    id='parkingAvailable'
-                    min='1'
-                    maxLength={160}
-                    onChange={(event) => handleChange(event, 'meta.parking')}
-                    value={venueFormData.meta.parking.toString()}
+                    {...register('meta.parking')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                   >
                     <option value='true'>Parking Available</option>
                     <option value='false'>No Parking Available</option>
                   </select>
                 </div>
+                {errors.meta?.parking && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.meta.parking.message}
+                  </span>
+                )}
               </div>
 
               <hr className='col-span-2' />
@@ -401,17 +503,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='text'
-                    id='address'
-                    min='1'
-                    onChange={(event) =>
-                      handleChange(event, 'location.address')
-                    }
-                    value={venueFormData.location.address}
-                    maxLength={160}
+                    {...register('location.address')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter address'
                   />
                 </div>
+                {errors.location?.address && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.address.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -421,15 +522,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='text'
-                    id='city'
-                    onChange={(event) => handleChange(event, 'location.city')}
-                    value={venueFormData.location.city}
-                    min='1'
-                    maxLength={160}
+                    {...register('location.city')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter city'
                   />
                 </div>
+                {errors.location?.city && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.city.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -439,16 +541,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='number'
-                    id='zip'
-                    onChange={(event) => handleChange(event, 'location.zip')}
-                    value={venueFormData.location.zip}
-                    min='1'
-                    max={999999}
-                    maxLength={160}
+                    {...register('location.zip')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter zip'
                   />
                 </div>
+                {errors.location?.zip && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.zip.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -458,17 +560,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='text'
-                    id='country'
-                    min='1'
-                    maxLength={160}
-                    onChange={(event) =>
-                      handleChange(event, 'location.country')
-                    }
-                    value={venueFormData.location.country}
+                    {...register('location.country')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter country'
                   />
                 </div>
+                {errors.location?.country && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.country.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -478,15 +579,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='number'
-                    id='latitude'
-                    onChange={(event) => handleChange(event, 'location.lat')}
-                    value={venueFormData.location.lat}
-                    min='1'
-                    maxLength={160}
+                    {...register('location.lat')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter latitude'
                   />
                 </div>
+                {errors.location?.lat && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.lat.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-1'>
@@ -496,15 +598,16 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='number'
-                    id='longitude'
-                    min='1'
-                    maxLength={160}
-                    onChange={(event) => handleChange(event, 'location.lng')}
-                    value={venueFormData.location.lng}
+                    {...register('location.lng')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter longitude'
                   />
                 </div>
+                {errors.location?.lng && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.lng.message}
+                  </span>
+                )}
               </div>
 
               <div className='col-span-2'>
@@ -514,48 +617,46 @@ const VenueForm = () => {
                   </div>
                   <input
                     type='text'
-                    id='continent'
-                    min='1'
-                    maxLength={160}
-                    onChange={(event) =>
-                      handleChange(event, 'location.continent')
-                    }
-                    value={venueFormData.location.continent}
+                    {...register('location.continent')}
                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                     placeholder='Enter continent'
                   />
                 </div>
+                {errors.location?.continent && (
+                  <span className='text-red-500 text-sm'>
+                    {errors.location.continent.message}
+                  </span>
+                )}
               </div>
 
+              {/* Media Section */}
               <hr className='col-span-2' />
               <h4 className='col-span-2 flex justify-between'>
-                <span>Venue Media </span>
+                <span>Venue Media</span>
               </h4>
 
-              {venueFormData.media.map((mediaItem, index) => (
+              {mediaFields.map((_, index) => (
                 <div
                   key={index}
                   className='col-span-1 md:col-span-2 flex gap-2'
                 >
                   <input
                     type='url'
+                    {...register(`media.${index}.url`)}
+                    className='bg-gray-50 border text-sm w-full p-2'
                     placeholder='Image URL'
-                    value={mediaItem.url}
-                    onChange={(e) =>
-                      handleMediaChange(index, 'url', e.target.value)
-                    }
-                    className='bg-gray-50 border text-sm w-full p-2 dark:bg-gray-700 dark:border-gray-600'
                   />
                   <input
                     type='text'
+                    {...register(`media.${index}.alt`)}
+                    className='bg-gray-50 border text-sm w-full p-2'
                     placeholder='Alt Text'
-                    value={mediaItem.alt}
-                    onChange={(e) =>
-                      handleMediaChange(index, 'alt', e.target.value)
-                    }
-                    className='bg-gray-50 border text-sm w-full p-2 dark:bg-gray-700 dark:border-gray-600'
                   />
-                  <button type='button' onClick={() => removeMediaItem(index)}>
+                  <button
+                    type='button'
+                    onClick={() => removeMediaItem(index)}
+                    className='bg-red-500 text-white px-4 py-2'
+                  >
                     Remove
                   </button>
                 </div>
@@ -564,7 +665,7 @@ const VenueForm = () => {
               <button
                 type='button'
                 onClick={addMediaItem}
-                className='col-span-2'
+                className='col-span-2 bg-gray-200 hover:bg-gray-300 p-2'
               >
                 Add Media Item
               </button>
