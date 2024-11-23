@@ -6,7 +6,7 @@ import bannerImage from '/banner4.jpg'
 import { useAuth } from '../context/AuthContext'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+import * as yup from 'yup' 
 
 const schema = yup
   .object({
@@ -19,7 +19,7 @@ const Login = () => {
   const { changePageTitle } = usePageTitleContext()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const { login } = useAuth()
+  const { login } = useAuth() 
 
   const [showPassword, setShowPassword] = useState(false) 
 
@@ -37,7 +37,7 @@ const Login = () => {
     // Simulate API call 
     login(data.email, data.password)
       .then(() => { 
-        reset() 
+        reset()  
         window.location.href = '/'
       })
       .catch((error) => setError(error[0].message))

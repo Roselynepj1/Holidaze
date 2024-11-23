@@ -14,6 +14,7 @@ import Profile from '../pages/Profile'
 import VenueForm from './../pages/VenueForm'
 import UserVenues from './../pages/UserVenues'
 import VenueBookings from './../pages/VenueBookings'
+import ProtectedRoute from './ProtectedRoute'
 
 const Content = () => {
   const contentAreaRef = useRef(null)
@@ -28,16 +29,26 @@ const Content = () => {
         <Route path='/home' element={<Home />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
-        <Route path='/user/bookings' element={<Bookings />} />
+        <Route path='/user/bookings' element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
         <Route
           path='/venues'
           element={<Venue contentAreaRef={contentAreaRef} />}
         />
         <Route path='/venues/:venueId' element={<VenueDetails />} />
         <Route path='/user/venues' element={<UserVenues />} />
-        <Route path='/user/venues/create' element={<VenueForm />} />
-        <Route path='/user/venues/:venueId/edit' element={<VenueForm />} />
-        <Route path='/user/venues/:venueId/bookings' element={<VenueBookings />} />
+        <Route path='/user/venues/create' element={<ProtectedRoute><VenueForm /></ProtectedRoute>} />
+        <Route
+          path='/user/venues/:venueId/edit'
+          element={
+            <ProtectedRoute>
+              <VenueForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/user/venues/:venueId/bookings'
+          element={<VenueBookings />}
+        />
         <Route
           path='/venues/:venueId/booking/:bookingId/edit'
           element={<VenueDetails />}
@@ -45,7 +56,7 @@ const Content = () => {
         <Route path='/faq' element={<Faq />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/profile' element={<Profile />} />
+        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path='/not-found' element={<NotFound />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
