@@ -54,35 +54,6 @@ const VenueForm = () => {
     error: null,
     success: null,
   })
-  const [venueFormData, setVenueFormData] = useState({
-    name: '', // Required
-    description: '', // Required
-    media: [
-      {
-        url: '',
-        alt: '',
-      },
-    ], // Optional
-    price: 0, // Required
-    maxGuests: 0, // Required
-    rating: 0,
-    meta: {
-      wifi: true,
-      parking: true,
-      breakfast: true,
-      pets: true,
-    },
-    location: {
-      address: '',
-      city: '',
-      zip: '',
-      country: '',
-      continent: '',
-      lat: 0,
-      lng: 0,
-    },
-  })
-  
 
   const [formLoading, setFormLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -125,12 +96,15 @@ const VenueForm = () => {
 
   const mediaFields = watch('media')
   useEffect(() => {
+    
+      changePageTitle('Create Venue')
     const getVenueDetails = async (id) => {
       try {
         const { data } = await getVenueById(id)
         // Reset form with venue data
         reset(data)
-        setIsEditing(true)
+        setIsEditing(true) 
+        changePageTitle('Update Venue')
       } catch (err) {
         console.log(err)
       }
@@ -141,64 +115,7 @@ const VenueForm = () => {
     }
   }, [venueId, reset])
 
-  const handleChange = (event, field) => {
-    const { value } = event.target
-
-    setVenueFormData((prevState) => {
-      // Handle nested fields
-      if (field.includes('.')) {
-        const [mainField, subField] = field.split('.')
-
-        // Handle boolean values for meta fields
-        if (mainField === 'meta') {
-          return {
-            ...prevState,
-            [mainField]: {
-              ...prevState[mainField],
-              [subField]: value === 'true',
-            },
-          }
-        }
-
-        // Handle number values for location fields
-        if (
-          mainField === 'location' &&
-          (subField === 'lat' || subField === 'lng')
-        ) {
-          return {
-            ...prevState,
-            [mainField]: {
-              ...prevState[mainField],
-              [subField]: value === '' ? 0 : Number(value),
-            },
-          }
-        }
-
-        // Handle other nested fields
-        return {
-          ...prevState,
-          [mainField]: {
-            ...prevState[mainField],
-            [subField]: value,
-          },
-        }
-      }
-
-      // Handle non-nested number fields
-      if (field === 'price' || field === 'maxGuests' || field === 'rating') {
-        return {
-          ...prevState,
-          [field]: value === '' ? 0 : Number(value),
-        }
-      }
-
-      // Handle regular fields
-      return {
-        ...prevState,
-        [field]: value,
-      }
-    })
-  }
+ 
 
   const addMediaItem = () => {
     const media = watch('media') || []
@@ -212,102 +129,10 @@ const VenueForm = () => {
       media.filter((_, i) => i !== index)
     )
   }
-
-  const handleMediaChange = (index, field, value) => {
-    const newMedia = [...venueFormData.media]
-    newMedia[index][field] = value
-    setVenueFormData((prevData) => ({
-      ...prevData,
-      media: newMedia,
-    }))
-  }
  
-
-  const isImageUrl = (url) => {
-    const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i
-    return urlPattern.test(url)
-  }
-
-  const onSubmits = (e) => {
-    e.preventDefault()
-    setFormLoading(true)
-
-    //clear all errors
-    setMessage(() => ({ success: null, error: null }))
-    // Mock submit
-
-    // Validate each image URL before proceeding
-    const areAllValidUrls = venueFormData.media.every((item) =>
-      isImageUrl(item.url)
-    )
-
-    if (!areAllValidUrls) {
-      setFormLoading(false)
-      setMessage((prev) => ({
-        ...prev,
-        error:
-          'One or more media URLs are invalid. Please check and try again.',
-      }))
-      return // Stop the submission if validation fails
-    }
-
-    if (!isEditing) {
-      createVenue(venueFormData)
-        .then((res) => {
-          const { error } = res
-          if (error) {
-            setMessage((prev) => ({ ...prev, error: error[0].message }))
-            return
-          }
-          setMessage((prev) => ({
-            ...prev,
-            success: 'Venue created successfully!',
-          }))
-          //reset form data
-          setVenueFormData(() => ({
-            name: '',
-            description: '',
-            price: 0,
-            maxGuests: 0,
-            rating: 0,
-            media: [{ url: '', alt: '' }],
-            meta: {
-              wifi: true,
-              parking: true,
-              breakfast: true,
-              pets: true,
-            },
-            location: {
-              address: '',
-              city: '',
-              zip: '',
-              country: '',
-              continent: '',
-              lat: 0,
-              lng: 0,
-            },
-          }))
-        })
-        .catch((e) => setMessage((prev) => ({ ...prev, error: e[0].message })))
-        .finally(() => setFormLoading(false))
-    } else {
-      updateVenue(venueId, venueFormData)
-        .then((res) => {
-          const { error } = res
-          if (error) {
-            setMessage((prev) => ({ ...prev, error: error[0].message }))
-            return
-          }
-          setMessage((prev) => ({
-            ...prev,
-            success: 'Venue updated successfully!',
-          }))
-          //reset form data
-        })
-        .catch((e) => setMessage((prev) => ({ ...prev, error: e[0].message })))
-        .finally(() => setFormLoading(false))
-    }
-  }
+ 
+ 
+ 
 
   const onSubmit = async (data) => {
     setFormLoading(true)
