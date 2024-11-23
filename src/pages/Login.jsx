@@ -2,39 +2,46 @@ import { usePageTitleContext } from '../context/PageTitleContext'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import bannerImage from '/banner4.jpg' 
-import { useAuth } from '../context/AuthContext' 
+import bannerImage from '/banner4.jpg'
+import { useAuth } from '../context/AuthContext'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+const schema = yup
+  .object({
+    email: yup.string().email().trim().required(),
+    password: yup.string().trim().required(),
+  })
+  .required()
 
 const Login = () => {
   const { changePageTitle } = usePageTitleContext()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const {login} = useAuth() 
+  const { login } = useAuth()
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    remember: false,
+  const [showPassword, setShowPassword] = useState(false) 
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
   })
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const onSubmit = (data) => { 
     setIsLoading(true)
-    // Simulate API call
-    login(formData.email, formData.password)
+    // Simulate API call 
+    login(data.email, data.password)
       .then(() => { 
-        setError(null)
-        //reset form data
-        setFormData({
-          email: '',
-          password: '',
-          remember: false,
-        })
-        // navigate('/')
-        window.location.href='/'
+        reset() 
+        window.location.href = '/'
       })
-      .catch((error) => setError(error[0].message)).finally(()=> setIsLoading(false))
+      .catch((error) => setError(error[0].message))
+      .finally(() => setIsLoading(false))
   }
 
   const togglePasswordVisibility = () => {
@@ -65,7 +72,7 @@ const Login = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className='mt-8 space-y-6'>
+            <form onSubmit={handleSubmit(onSubmit)} className='mt-8 space-y-6'>
               <div className='space-y-4'>
                 {/* Email */}
                 <div>
@@ -81,17 +88,14 @@ const Login = () => {
                     </div>
                     <input
                       id='email'
-                      name='email'
-                      type='email'
-                      required
+                      {...register('email')}
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='name@company.com'
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
                     />
                   </div>
+                  <small className='text-red-600'> 
+                    {errors.email?.message}
+                  </small>
                 </div>
 
                 {/* Password */}
@@ -107,17 +111,12 @@ const Login = () => {
                       <i className='fa-sharp fa-thin fa-lock'></i>
                     </div>
                     <input
-                      id='password'
-                      name='password'
-                      type={showPassword ? 'text' : 'password'}
-                      required
+                      type={showPassword ? 'text' : 'password'} 
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='••••••••'
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
+                      {...register('password')}
                     />
+                    <small className='text-red-600'>{errors.password?.message}</small>
                     <button
                       type='button'
                       className='absolute inset-y-0 right-0 pr-3 flex items-center'
@@ -133,35 +132,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Remember me & Forgot password */}
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center'>
-                  <input
-                    id='remember'
-                    name='remember'
-                    type='checkbox'
-                    className='h-4 w-4 text-blue-600 border-gray-300 focus:ring-black'
-                    checked={formData.remember}
-                    onChange={(e) =>
-                      setFormData({ ...formData, remember: e.target.checked })
-                    }
-                  />
-                  <label
-                    htmlFor='remember'
-                    className='ml-2 block text-sm text-gray-700 dark:text-white'
-                  >
-                    Remember me
-                  </label>
-                </div>
-                <div>
-                  <a
-                    href='#'
-                    className='text-sm text-gray-600 hover:text-black'
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
+              
 
               {/* Submit Button */}
               <button
@@ -194,13 +165,14 @@ const Login = () => {
               </button>
 
               {/* Sign up link */}
-              <Link to='/register' className='text-center text-sm block'>
+              <Link
+                to='/register'
+                className='text-center text-sm flex gap-4 justify-center'
+              >
                 <span className='text-gray-600 dark:text-white'>
                   Don&apos;t have an account?
-                </span> 
-                <span
-                  className='text-gray-600 hover:text-black font-medium'
-                >
+                </span>
+                <span className='text-gray-600 hover:text-black dark:hover:text-zinc-400 font-medium'>
                   Sign up now
                 </span>
               </Link>

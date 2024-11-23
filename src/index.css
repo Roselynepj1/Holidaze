@@ -36,6 +36,9 @@
 .active-link{
     border-bottom: 4px solid black;
 }
+.dark .active-link{
+    border-bottom: 4px solid white;
+}
 
 /* Dark mode for react-big-calendar */
 .dark .rbc-calendar {
@@ -52,7 +55,7 @@
 }
 
 .dark .rbc-event {
-  background-color: #3b3d49 !important;
+  background-color: red !important;
   text-align: center;
   color: #ffffff;
 }
@@ -61,7 +64,7 @@
 }
 
 .rbc-event {
-  background-color: black;
+  background-color: red;
   text-align: center;
   color: #ffffff;
   border-radius: 0;

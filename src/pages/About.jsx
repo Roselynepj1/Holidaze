@@ -126,7 +126,7 @@ const About = () => {
             alt='map'
             className='w-full h-full object-cover'
           />
-          <div className='absolute h-full w-full bg-black bg-opacity-50 p-10  '>
+          <div className='absolute h-full w-full bg-black bg-opacity-85 p-10  '>
             <div className='absolute top-10 left-5 items-center flex-col hidden lg:flex'>
               <div className='w-8 h-12 border-2 border-yellow-500 rounded-full flex items-center justify-center mb-2'>
                 <span className='block w-1.5 h-2.5 bg-yellow-500 rounded-full animate-bounce'></span>
@@ -139,7 +139,7 @@ const About = () => {
             <div className='absolute bottom-10 text-white flex flex-col items-start mb-10'>
               <h2 className='text-4xl font-bold mb-4'>About Us</h2>
               <div className='text-gray-300 mb-6'>
-                <hr className='bg-black border-black h-[5px] w-1/2 mb-3' />
+                <hr className='bg-black border-black h-[5px] dark:border-white dark:bg-zinc-300 w-1/2 mb-3' />
                 <p className='dark:text-white'>
                   Holidaze was founded with a simple mission: to make travel
                   personal, effortless, and extraordinary. From hidden gems to

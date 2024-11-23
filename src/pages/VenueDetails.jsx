@@ -12,28 +12,54 @@ import {
 import { useProfile } from '../context/ProfileContext'
 import { useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  InfoWindow,
-} from '@react-google-maps/api'
 import Spinner from '../components/Spinner'
-const GOOGLE_MAP_API_KEY = import.meta.VITE_GOOGLE_MAP_API_KEY
 import Message from '../components/Message'
 import { useNavigate } from 'react-router-dom'
 import VenueCalendar from '../components/VenueCalendar'
+import Image from '../components/Image'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+const schema = yup.object({
+  dateFrom: yup
+    .date()
+    .transform((value, originalValue) => {
+      // Check if the original value is empty
+      if (originalValue === '') {
+        return undefined
+      }
+      return value
+    })
+    .nullable()
+    .typeError('Please enter a valid date')
+    .min(new Date(), 'Date cannot be in the past')
+    .required('Start date is required'),
+
+  dateTo: yup
+    .date()
+    .transform((value, originalValue) => {
+      if (originalValue === '') {
+        return undefined
+      }
+      return value
+    })
+    .nullable()
+    .typeError('Please enter a valid date')
+    .min(yup.ref('dateFrom'), 'End date cannot be earlier than start date')
+    .required('End date is required'),
+  guests: yup
+    .number()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .typeError('Please enter a valid number')
+    .min(1, 'Minimum 1 guest required')
+    .required('Number of guests is required'),
+})
 
 const VenueDetails = () => {
   const { changePageTitle } = usePageTitleContext()
   const [isLoading, setIsLoading] = useState(true)
   const formRef = useRef(null)
-  const [venueFormData, setVenueFormData] = useState({
-    dateFrom: '',
-    dateTo: '',
-    guests: '',
-    venueId: '',
-  })
   const [formLoading, setFormLoading] = useState(false)
   const [message, setMessage] = useState({ error: '', success: '' })
   const [venue, setVenue] = useState({})
@@ -41,11 +67,17 @@ const VenueDetails = () => {
   const [booking, setBooking] = useState({})
   const [isEditing, setIsEditing] = useState(false)
   const { venueId, bookingId } = useParams()
-  const defaultLocation = {
-    lat: 0,
-    lng: 0,
-  }
+
   const navigate = useNavigate()
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  })
 
   useEffect(() => {
     getVenue()
@@ -63,11 +95,6 @@ const VenueDetails = () => {
       }
       setVenue(venue)
       changePageTitle(venue?.name)
-      //set the venue id
-      setVenueFormData((prev) => ({
-        ...prev,
-        venueId: venue?.id,
-      }))
     } catch (e) {
       console.log('Error', e)
       return navigate('/not-found')
@@ -82,12 +109,6 @@ const VenueDetails = () => {
 
       setIsEditing(true)
       setBooking(booking)
-      setVenueFormData((prev) => ({
-        ...prev,
-        dateFrom: toInputDate(booking?.dateFrom),
-        dateTo: toInputDate(booking?.dateTo),
-        guests: booking?.guests,
-      }))
     } catch (e) {
       console.log(e)
     } finally {
@@ -96,56 +117,20 @@ const VenueDetails = () => {
     }
   }
 
-  const toInputDate = (date) => {
-    return new Date(date).toISOString().split('T')[0]
-  }
-
   const scrollToForm = () => {
     if (!formRef.current) return
     // formRef.current.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const validateForm = () => {
-    //check if booking dates are valid
-    let { dateFrom, dateTo } = venueFormData
-    dateFrom = new Date(dateFrom)
-    dateTo = new Date(dateTo)
-    //check if date to or a date from is less than today
-    if (dateTo < new Date() || dateFrom < new Date()) {
-      setMessage((prev) => ({
-        ...prev,
-        error: 'Date from or date to, must be in the future',
-      }))
-      return false
-    }
-
-    //check if date from is less than date to
-    if (dateFrom > dateTo) {
-      setMessage((prev) => ({
-        ...prev,
-        error: 'Date from must be less than date to',
-      }))
-      return false
-    }
-
-    return true
-  }
-
-  const handleEditBooking = (event) => {
-    event.preventDefault()
+  const handleEditBooking = (data) => {
     setFormLoading(true)
     //reset errors and success messages
     setMessage(() => ({ success: null, error: null }))
-    const validate = validateForm()
 
-    if (!validate) {
-      setFormLoading(false)
-      return
-    }
     setFormLoading(true)
     ///clear any errors
     setMessage(() => ({ success: null, error: null }))
-    updateBooking(booking.id, venueFormData)
+    updateBooking(booking.id, data)
       .then(() => {
         setMessage((prev) => ({
           ...prev,
@@ -157,18 +142,15 @@ const VenueDetails = () => {
       })
       .finally(() => setFormLoading(false))
   }
-  const handleCreateBooking = (event) => {
-    event.preventDefault()
+  const handleCreateBooking = (data) => {
     //reset errors and success messages
     setMessage(() => ({ success: null, error: null }))
-    const validate = validateForm()
-    if (!validate) return
     setFormLoading(true)
 
     ///clear any errors
     setMessage(() => ({ success: null, error: null }))
 
-    createBooking(venueFormData)
+    createBooking({ ...data, venueId: venue.id })
       .then(({ error }) => {
         console.log('Starting')
         if (error && error.length) {
@@ -180,8 +162,7 @@ const VenueDetails = () => {
         }
 
         //reset the form
-        setVenueFormData(() => ({ dateFrom: null, dateTo: null, guests: null }))
-        event.target.reset()
+        reset()
         setMessage((prev) => ({
           ...prev,
           success: 'Booking created successfully',
@@ -287,14 +268,14 @@ const VenueDetails = () => {
 
               <div className='grid grid-col-1 md:grid-cols-2 gap-4'>
                 {venue?.media.map((image, index) => (
-                  <img key={index} src={image.url} alt={image.alt} className='h-[250px] grid-cols-2 md:grid-cols-1 w-full object-cover object-center '/>
+                  <Image src={image.url} alt={image.alt} key={index} />
                 ))}
               </div>
             </div>
 
             <div>{venue?.bookings && <VenueCalendar venue={venue} />}</div>
 
-            <div className='flex flex-col gap-4'>
+            {/* <div className='flex flex-col gap-4'>
               <h1 className='uppercase font-black'>Welcome to visit</h1>
               <LoadScript googleMapsApiKey={GOOGLE_MAP_API_KEY}>
                 <GoogleMap
@@ -327,7 +308,7 @@ const VenueDetails = () => {
                   </InfoWindow>
                 </GoogleMap>
               </LoadScript>
-            </div>
+            </div> */}
           </motion.div>
         )}
 
@@ -356,10 +337,10 @@ const VenueDetails = () => {
               <form
                 ref={formRef}
                 className='grid grid-cols-1 md:grid-cols-1 gap-6'
-                onSubmit={(event) =>
+                onSubmit={
                   isEditing
-                    ? handleEditBooking(event)
-                    : handleCreateBooking(event)
+                    ? handleSubmit(handleEditBooking)
+                    : handleSubmit(handleCreateBooking)
                 }
                 autoComplete='no-fill'
               >
@@ -373,28 +354,14 @@ const VenueDetails = () => {
                     </div>
                     <input
                       type='number'
-                      id='guests'
-                      autoComplete='new-guests'
-                      value={venueFormData.guests}
-                      required
-                      min={1}
-                      max={venue?.maxGuests}
-                      onChange={(event) => {
-                        let value = Number(event.target.value)
-
-                        // Enforce min and max limits
-                        if (value < 1) value = 1
-                        if (value > venue?.maxGuests) value = venue?.maxGuests
-
-                        setVenueFormData((prev) => ({
-                          ...prev,
-                          guests: value,
-                        }))
-                      }}
+                      {...register('guests')}
                       className='bg-transparent text-white border border-gray-300  text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white'
                       placeholder='How many guests will be hosted?'
                     />
                   </div>
+                  <small className='text-red-600'>
+                    {errors.guests?.message}
+                  </small>
                 </div>
                 <div className='col-span-2'>
                   <label className='text-white' htmlFor='dateFrom'>
@@ -406,20 +373,13 @@ const VenueDetails = () => {
                     </div>
                     <input
                       type='date'
-                      autoComplete='new-date-from'
-                      required
-                      value={venueFormData.dateFrom}
-                      onChange={(event) =>
-                        setVenueFormData((prev) => ({
-                          ...prev,
-                          dateFrom: event.target.value,
-                        }))
-                      }
-                      id='dateFrom'
+                      {...register('dateFrom')}
                       className='bg-transparent border border-gray-300  text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-900 dark:border-gray-600 dark:placeholder-gray-400 text-white'
-                      placeholder=''
                     />
                   </div>
+                  <small className='text-red-600'>
+                    {errors.dateFrom?.message}
+                  </small>
                 </div>
                 <div className='col-span-2'>
                   <label className='text-white' htmlFor='dateTo'>
@@ -431,20 +391,13 @@ const VenueDetails = () => {
                     </div>
                     <input
                       type='date'
-                      id='dateTo'
-                      autoComplete='new-date-to'
-                      value={venueFormData.dateTo}
-                      required
-                      onChange={(event) =>
-                        setVenueFormData((prev) => ({
-                          ...prev,
-                          dateTo: event.target.value,
-                        }))
-                      }
+                      {...register('dateTo')}
                       className='bg-transparent border border-gray-300  text-sm focus:ring-black focus:border-black block w-full pl-10 p-2.5 dark:bg-gray-900 dark:border-gray-600 dark:placeholder-gray-400 text-white'
-                      placeholder='Book To'
                     />
                   </div>
+                  <small className='text-red-600'>
+                    {errors.dateTo?.message}
+                  </small>
                 </div>
 
                 <div className='col-span-1 md:col-span-2  gap-4 flex'>

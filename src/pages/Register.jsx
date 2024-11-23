@@ -3,7 +3,28 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import bannerImage from '/banner4.jpg'
-import { register } from '../utilities/api'
+import { login, registerUser } from '../utilities/api'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import Spinner from '../components/Spinner'
+const schema = yup
+  .object({
+    name: yup.string().trim().required('Name is required'),
+    email: yup
+      .string()
+      .email('Invalid email')
+      .trim()
+      .required('Email is required'),
+    password: yup.string().trim().required('Password is required'),
+    confirmPassword: yup
+      .string()
+      .trim()
+      .required('Confirm Password is required')
+      .oneOf([yup.ref('password'), null], 'Passwords must match'),
+    venueManager: yup.boolean().required('Venue Manager must be specified'),
+  })
+  .required()
 
 const Register = () => {
   const { changePageTitle } = usePageTitleContext()
@@ -11,29 +32,21 @@ const Register = () => {
   const [error, setError] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    remember: false,
-  })
   const [success, setSuccess] = useState(null)
+  const [loginUser, setLoginUser] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  })
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
-    if (!formData.remember) {
-      setError('Please accept terms and conditions')
-      return
-    }
+  const onSubmit = (data) => {
     setIsLoading(true)
     // Simulate API call
-    register(formData)
+    registerUser(data)
       .then((res) => {
         setError(null)
         //reset form data
@@ -41,17 +54,25 @@ const Register = () => {
         if (res.error) {
           setError(res.error[0].message)
           return
-        } 
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          remember: false,
-        })
-        setSuccess('Account created successfully, please login') 
+        }
+
+        reset()
+        setLoginUser(true)
+        login(data.email, data.password)
+          .then(() => {
+            //go to home page
+            window.location.href = '/'
+          })
+          .catch((error) => {
+            setError(error[0].message)
+          })
+          .finally(() => setLoginUser(false))
+        setSuccess('Account created successfully, please login')
+
+        //sign user after successful registration
       })
-      .catch((error) => setError(error[0].message)).finally(() => setIsLoading(false)) 
+      .catch((error) => setError(error[0].message))
+      .finally(() => setIsLoading(false))
   }
 
   const togglePasswordVisibility = () => {
@@ -82,15 +103,23 @@ const Register = () => {
                   {error}
                 </p>
               )}
-              {success && (
+            </div>
+            {success && (
+              <div className='flex flex-column'>
                 <p className='mt-2 text-sm text-white bg-black p-2'>
                   {success}
                 </p>
-              )}
-            </div>
+                {loginUser && (
+                  <div className='flex gap-4'>
+                    <Spinner />
+                    <span>Logging you in</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className='mt-8 space-y-6'>
+            <form onSubmit={handleSubmit(onSubmit)} className='mt-8 space-y-6'>
               <div className='space-y-4'>
                 {/* Name */}
                 <div>
@@ -106,17 +135,12 @@ const Register = () => {
                     </div>
                     <input
                       id='name'
-                      name='name'
-                      type='text'
-                      required
+                      {...register('name')}
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='username'
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
                     />
                   </div>
+                  <small className='text-red-600'>{errors.name?.message}</small>
                 </div>
                 {/* Email */}
                 <div>
@@ -132,17 +156,14 @@ const Register = () => {
                     </div>
                     <input
                       id='email'
-                      name='email'
-                      type='email'
-                      required
+                      {...register('email')}
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='name@company.com'
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
                     />
                   </div>
+                  <small className='text-red-600'>
+                    {errors.email?.message}
+                  </small>
                 </div>
 
                 {/* Password */}
@@ -159,15 +180,10 @@ const Register = () => {
                     </div>
                     <input
                       id='password'
-                      name='password'
                       type={showPassword ? 'text' : 'password'}
-                      required
+                      {...register('password')}
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='••••••••'
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
                     />
                     <button
                       type='button'
@@ -181,6 +197,9 @@ const Register = () => {
                       )}
                     </button>
                   </div>
+                  <small className='text-red-600'>
+                    {errors.password?.message}
+                  </small>
                 </div>
                 <div>
                   <label
@@ -194,19 +213,10 @@ const Register = () => {
                       <i className='fa-sharp fa-thin fa-lock'></i>
                     </div>
                     <input
-                      id='password'
-                      name='password'
+                      {...register('confirmPassword')}
                       type={showConfirmPassword ? 'text' : 'password'}
-                      required
                       className='block w-full pl-10 pr-3 py-2.5 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-black focus:border-black focus:outline-none  dark:bg-transparent'
                       placeholder='••••••••'
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
                     />
                     <button
                       type='button'
@@ -220,6 +230,9 @@ const Register = () => {
                       )}
                     </button>
                   </div>
+                  <small className='text-red-600'>
+                    {errors.confirmPassword?.message}
+                  </small>
                 </div>
               </div>
 
@@ -227,20 +240,16 @@ const Register = () => {
               <div className='flex items-center justify-between'>
                 <div className='flex items-center'>
                   <input
-                    id='remember'
-                    name='remember'
+                    id='venueManager'
+                    {...register('venueManager')}
                     type='checkbox'
                     className='h-4 w-4 text-blue-600 border-gray-300 focus:ring-black'
-                    checked={formData.remember}
-                    onChange={(e) =>
-                      setFormData({ ...formData, remember: e.target.checked })
-                    }
                   />
                   <label
-                    htmlFor='remember'
+                    htmlFor='venueManager'
                     className='ml-2 block text-sm text-gray-700 dark:text-white'
                   >
-                    Accept our terms and conditions
+                    Sign up as a Venue Manager
                   </label>
                 </div>
               </div>
@@ -276,11 +285,14 @@ const Register = () => {
               </button>
 
               {/* Sign up link */}
-              <Link to='/login' className='text-center text-sm block'>
+              <Link
+                to='/login'
+                className='text-center text-sm flex gap-4 justify-center'
+              >
                 <span className='text-gray-600 dark:text-white'>
                   Already have an account?
                 </span>
-                <span className='text-gray-600 hover:text-black font-medium'>
+                <span className='text-gray-600 hover:text-black dark:hover:text-zinc-400 font-medium'>
                   Sign in now
                 </span>
               </Link>

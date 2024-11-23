@@ -53,7 +53,7 @@ export const login = async (email, password) => {
   return result
 }
 
-export const register = async (user) => {
+export const registerUser = async (user) => {
   const url = `${authBaseUrl}/register` // Update this to your actual registration endpoint
   const options = {
     method: 'POST',

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getVenues, searchVenues } from '../utilities/api'
 import PropTypes from 'prop-types'
+import Image from '../components/Image'
 const Venue = ({ contentAreaRef }) => {
   const { changePageTitle } = usePageTitleContext()
   const [venues, setVenues] = useState([])
@@ -116,12 +117,12 @@ const Venue = ({ contentAreaRef }) => {
                     </span>
                   </motion.div>
 
-                  {/* Image */}
-                  <img
+                  {/* Image */} 
+                  <Image
                     src={
                       venue.media.length ? venue?.media[0]?.url : placeholder
                     }
-                    className='w-full h-full object-cover'
+                    
                   />
 
                   {/* Bottom div - Venue Name and Link */}
