@@ -260,7 +260,7 @@ const VenueForm = () => {
               <div className='col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-                    <i className='fa-sharp fa-thin fa-dog-leashed'></i>
+                    <i className='fa-sharp fa-regular fa-wifi'></i>
                   </div>
                   <select
                     {...register('meta.wifi')}
