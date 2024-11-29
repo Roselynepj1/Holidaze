@@ -103,7 +103,7 @@ This project is hosted on **Netlify**. The live demo is accessible at: [Holidaze
 ### Running the App Locally:
 1. Clone the repository and install dependencies as described above.
 2. Start the development server using `npm run dev`.
-3. Access the app at `http://localhost:3000`.
+3. Access the app at `http://localhost:5173`.
 
 ### Key Areas to Test:
 1. **Venue Features**: View venue list, search venues, view venue details and availability calendar.
