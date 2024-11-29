@@ -171,10 +171,10 @@ const VenueForm = () => {
               {isEditing ? 'Update Venue' : 'Create New Venue'}
             </h1>
             <form
-              className='grid grid-cols-1 md:grid-cols-2 gap-4'
+              className='grid grid-cols-2 md:grid-cols-2 gap-4'
               onSubmit={handleSubmit(onSubmit)}
             >
-              <div className='col-span-1 md:col-span-2'>
+              <div className='col-span-2 sm:col-span-2'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-buildings'></i>
@@ -189,7 +189,7 @@ const VenueForm = () => {
                 <small className='text-red-600'>{errors.name?.message}</small>
               </div>
 
-              <div className='col-span-1 md:col-span-2'>
+              <div className='col-span-2 sm:col-span-2'>
                 <textarea
                   rows='4'
                   {...register('description')}
@@ -201,7 +201,7 @@ const VenueForm = () => {
                 </small>
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-sack'></i>
@@ -216,7 +216,7 @@ const VenueForm = () => {
                 <small className='text-red-600'>{errors.price?.message}</small>
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-users'></i>
@@ -236,7 +236,7 @@ const VenueForm = () => {
               <hr className='col-span-2' />
               <h4 className='col-span-2'>Features</h4>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-dog-leashed'></i>
@@ -257,7 +257,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-regular fa-wifi'></i>
@@ -277,7 +277,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-utensils'></i>
@@ -298,7 +298,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-circle-parking'></i>
@@ -321,7 +321,7 @@ const VenueForm = () => {
               <hr className='col-span-2' />
               <h4 className='col-span-2'>Location</h4>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-location-dot'></i>
@@ -340,7 +340,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-city'></i>
@@ -359,7 +359,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-00'></i>
@@ -378,7 +378,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-globe'></i>
@@ -397,7 +397,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-location-crosshairs'></i>
@@ -416,7 +416,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-1'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-location-crosshairs'></i>
@@ -435,7 +435,7 @@ const VenueForm = () => {
                 )}
               </div>
 
-              <div className='col-span-2'>
+              <div className='col-span-2 sm:col-span-1'>
                 <div className='relative'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <i className='fa-sharp fa-thin fa-earth-africa'></i>
@@ -463,7 +463,7 @@ const VenueForm = () => {
               {mediaFields.map((_, index) => (
                 <div
                   key={index}
-                  className='col-span-1 md:col-span-2 flex gap-2'
+                  className='col-span-2 sm:col-span-2 flex gap-2 flex-col sm:flex-row'
                 >
                   <input
                     type='url'
@@ -495,7 +495,7 @@ const VenueForm = () => {
                 Add Media Item
               </button>
 
-              <div className='col-span-1 md:col-span-2  gap-4 flex'>
+              <div className='col-span-2 sm:col-span-2  gap-4 flex'>
                 <button
                   disabled={formLoading ? 'disabled' : ''}
                   className='flex gap-2 p-4 bg-black border text-white items-center uppercase hover:bg-black/75'
