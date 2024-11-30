@@ -91,11 +91,11 @@ This project is hosted on **Netlify**. The live demo is accessible at: [Holidaze
 
 ## Design and Planning Resources
 
-- **Gantt Chart**: [View Gantt Chart](#)
+- **Gantt Chart**: [View Gantt Chart](https://lucid.app/lucidchart/d550efa8-1c12-444a-a52d-b6856a908f8d/edit?view_items=TA7M~Of1M7fG&invitationId=inv_74619d9b-886f-4fac-b21c-26a4dfd2616c)
 - **Design Prototype**: [View Prototype](https://www.figma.com/design/RTxpQI0PV5wj7eb7glKHbK/Holidaze?node-id=0-1&t=yggGVNdgnaeVtBoN-1)
-- **Style Guide**: [View Style Guide](#)
-- **Kanban Board**: [View Kanban Board](#)
-- **Repository**: [GitHub Repository](#)
+- **Kanban Board**: [View Kanban Board](https://trello.com/invite/b/6748fbc9f3cff0149b34e9b6/ATTI8140f0078b68ceb6658866aae4adced64712200E/holidaze)
+- **Repository**: [GitHub Repository](https://github.com/Roselynepj1/Holidaze)
+- **Hosted Site**: [Netlify App](https://holidaze-vacation.netlify.app/)
 
 ---
 
